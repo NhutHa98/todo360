@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8" />
     <title>Todos</title>
@@ -7,8 +7,19 @@
 </head>
 <body>
 <div class="container">
-    <h1>Todos</h1>
-    <a href="/todos/new" class="btn">New Todo</a>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+        <h1>Todos</h1>
+        <div>
+            <span sec:authorize="isAuthenticated()">Hello, <span sec:authentication="name"></span></span>
+            <a sec:authorize="isAuthenticated()" th:href="@{/logout}" onclick="event.preventDefault();document.getElementById('logoutForm').submit();">Logout</a>
+            <form id="logoutForm" th:action="@{/logout}" method="post" style="display:none">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            </form>
+            <a sec:authorize="!isAuthenticated()" th:href="@{/oauth2/authorization/keycloak}">Login</a>
+        </div>
+    </div>
+
+    <a sec:authorize="hasRole('USER') or hasRole('ADMIN')" href="/todos/new" class="btn">New Todo</a>
     <table>
         <thead>
         <tr>
@@ -24,8 +35,9 @@
             <td th:text="${t.description}">Description</td>
             <td th:text="${t.completed}">false</td>
             <td>
-                <a th:href="@{'/todos/edit/' + ${t.id}}">Edit</a>
-                <form th:action="@{'/todos/delete/' + ${t.id}}" method="post" style="display:inline">
+                <a sec:authorize="hasRole('USER') or hasRole('ADMIN')" th:href="@{'/todos/edit/' + ${t.id}}">Edit</a>
+                <form sec:authorize="hasRole('ADMIN')" th:action="@{'/todos/delete/' + ${t.id}}" method="post" style="display:inline">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                     <button type="submit">Delete</button>
                 </form>
             </td>
@@ -35,4 +47,3 @@
 </div>
 </body>
 </html>
-
