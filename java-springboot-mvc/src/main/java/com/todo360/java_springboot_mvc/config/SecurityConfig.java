@@ -16,17 +16,38 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.beans.factory.annotation.Autowired;
+import com.todo360.features.todo.service.UserService;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.core.userdetails.User;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
+    @Autowired
+    private com.todo360.features.todo.service.UserService userService;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/","/css/**","/js/**","/images/**","/h2-console/**").permitAll()
+                .requestMatchers("/", "/css/**", "/js/**", "/images/**", "/h2-console/**", "/signup", "/login").permitAll()
                 .anyRequest().authenticated()
+            )
+            .formLogin(form -> form
+                .loginPage("/login")
+                .defaultSuccessUrl("/todos", true)
+                .permitAll()
+            )
+            .logout(logout -> logout
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/login?logout")
+                .permitAll()
             )
             .oauth2Login()
             .and()
@@ -35,6 +56,25 @@ public class SecurityConfig {
             .headers(headers -> headers.frameOptions().sameOrigin());
 
         return http.build();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public UserDetailsService userDetailsService() {
+        return username -> {
+            com.todo360.features.todo.model.User appUser = userService.findByUsername(username);
+            if (appUser == null) {
+                throw new UsernameNotFoundException("User not found");
+            }
+            return User.withUsername(appUser.getUsername())
+                    .password(appUser.getPassword())
+                    .roles("USER")
+                    .build();
+        };
     }
 
     private JwtAuthenticationConverter jwtAuthenticationConverter() {
@@ -67,4 +107,3 @@ public class SecurityConfig {
         return converter;
     }
 }
-
