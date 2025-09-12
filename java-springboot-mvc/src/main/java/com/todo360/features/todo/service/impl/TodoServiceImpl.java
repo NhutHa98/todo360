@@ -1,5 +1,7 @@
 package com.todo360.features.todo.service.impl;
 
+import com.todo360.features.elasticsearch.TodoDocument;
+import com.todo360.features.elasticsearch.TodoElasticsearchService;
 import com.todo360.features.todo.model.Todo;
 import com.todo360.features.todo.repository.TodoRepository;
 import com.todo360.features.todo.service.TodoService;
@@ -12,9 +14,11 @@ import java.util.Optional;
 public class TodoServiceImpl implements TodoService {
 
     private final TodoRepository repository;
+    private final TodoElasticsearchService elasticsearchService;
 
-    public TodoServiceImpl(TodoRepository repository) {
+    public TodoServiceImpl(TodoRepository repository, TodoElasticsearchService elasticsearchService) {
         this.repository = repository;
+        this.elasticsearchService = elasticsearchService;
     }
 
     @Override
@@ -29,12 +33,23 @@ public class TodoServiceImpl implements TodoService {
 
     @Override
     public Todo save(Todo todo) {
-        return repository.save(todo);
+        Todo saved = repository.save(todo);
+        // Index in Elasticsearch
+        TodoDocument doc = new TodoDocument();
+        doc.setId(saved.getId().toString());
+        doc.setTitle(saved.getTitle());
+        doc.setDescription(saved.getDescription());
+        doc.setCompleted(saved.isCompleted());
+        elasticsearchService.save(doc);
+        return saved;
     }
 
     @Override
     public void deleteById(Long id) {
         repository.deleteById(id);
     }
-}
 
+    public List<TodoDocument> searchTodos(String query) {
+        return elasticsearchService.search(query);
+    }
+}

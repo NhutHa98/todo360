@@ -49,5 +49,10 @@ public class TodoController {
         todoService.deleteById(id);
         return "redirect:/todos";
     }
-}
 
+    @GetMapping("/search")
+    public String search(@RequestParam("q") String query, Model model) {
+        model.addAttribute("todos", todoService.searchTodos(query));
+        return "todo/list";
+    }
+}
