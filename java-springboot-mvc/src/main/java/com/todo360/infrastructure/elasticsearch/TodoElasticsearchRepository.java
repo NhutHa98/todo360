@@ -1,4 +1,4 @@
-package com.todo360.features.elasticsearch;
+package com.todo360.infrastructure.elasticsearch;
 
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 import java.util.List;

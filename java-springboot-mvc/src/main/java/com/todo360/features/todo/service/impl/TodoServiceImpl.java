@@ -1,9 +1,9 @@
 package com.todo360.features.todo.service.impl;
 
-import com.todo360.features.elasticsearch.TodoDocument;
-import com.todo360.features.elasticsearch.TodoElasticsearchService;
+import com.todo360.infrastructure.elasticsearch.TodoDocument;
+import com.todo360.infrastructure.elasticsearch.TodoElasticsearchService;
 import com.todo360.features.todo.model.Todo;
-import com.todo360.features.todo.repository.TodoRepository;
+import com.todo360.features.todo.repository.TodoRepositoryCustom;
 import com.todo360.features.todo.service.TodoService;
 import org.springframework.stereotype.Service;
 
@@ -13,10 +13,10 @@ import java.util.Optional;
 @Service
 public class TodoServiceImpl implements TodoService {
 
-    private final TodoRepository repository;
+    private final TodoRepositoryCustom repository;
     private final TodoElasticsearchService elasticsearchService;
 
-    public TodoServiceImpl(TodoRepository repository, TodoElasticsearchService elasticsearchService) {
+    public TodoServiceImpl(TodoRepositoryCustom repository, TodoElasticsearchService elasticsearchService) {
         this.repository = repository;
         this.elasticsearchService = elasticsearchService;
     }

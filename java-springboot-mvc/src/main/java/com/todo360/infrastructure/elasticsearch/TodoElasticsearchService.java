@@ -1,4 +1,4 @@
-package com.todo360.features.elasticsearch;
+package com.todo360.infrastructure.elasticsearch;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
