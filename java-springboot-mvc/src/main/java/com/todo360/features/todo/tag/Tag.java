@@ -1,5 +1,6 @@
-package com.todo360.features.todo.model;
+package com.todo360.features.todo.tag;
 
+import com.todo360.features.todo.model.Todo;
 import jakarta.persistence.*;
 import lombok.*;
 

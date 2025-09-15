@@ -1,7 +1,5 @@
-package com.todo360.features.todo.service.mapper;
+package com.todo360.features.todo.tag;
 
-import com.todo360.features.todo.dto.TagDto;
-import com.todo360.features.todo.model.Tag;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")

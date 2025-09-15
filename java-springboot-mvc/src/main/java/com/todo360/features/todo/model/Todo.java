@@ -1,5 +1,6 @@
 package com.todo360.features.todo.model;
 
+import com.todo360.features.todo.tag.Tag;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -33,7 +34,7 @@ public class Todo {
             joinColumns = @JoinColumn(name = "todo_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id"))
     @Builder.Default
-    private Set<com.todo360.features.todo.model.Tag> tags = new HashSet<>();
+    private Set<Tag> tags = new HashSet<>();
 
     @ManyToOne
     @JoinColumn(name = "collection_id")

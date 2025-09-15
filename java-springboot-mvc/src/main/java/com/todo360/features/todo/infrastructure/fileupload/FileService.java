@@ -1,9 +1,8 @@
-package com.todo360.features.todo.service;
+package com.todo360.features.todo.infrastructure.fileupload;
 
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Path;
 
 public interface FileService {
     /**

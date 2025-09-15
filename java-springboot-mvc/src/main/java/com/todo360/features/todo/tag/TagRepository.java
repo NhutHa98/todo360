@@ -1,6 +1,5 @@
-package com.todo360.features.todo.repository;
+package com.todo360.features.todo.tag;
 
-import com.todo360.features.todo.model.Tag;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
