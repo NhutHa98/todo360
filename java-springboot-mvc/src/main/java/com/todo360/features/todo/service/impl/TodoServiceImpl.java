@@ -1,5 +1,6 @@
 package com.todo360.features.todo.service.impl;
 
+import com.todo360.common.messaging.TodoEventProducer;
 import com.todo360.infrastructure.elasticsearch.TodoDocument;
 import com.todo360.infrastructure.elasticsearch.TodoElasticsearchService;
 import com.todo360.features.todo.model.Todo;
@@ -15,10 +16,12 @@ public class TodoServiceImpl implements TodoService {
 
     private final TodoRepositoryCustom repository;
     private final TodoElasticsearchService elasticsearchService;
+    private final TodoEventProducer eventProducer;
 
-    public TodoServiceImpl(TodoRepositoryCustom repository, TodoElasticsearchService elasticsearchService) {
+    public TodoServiceImpl(TodoRepositoryCustom repository, TodoElasticsearchService elasticsearchService, TodoEventProducer eventProducer) {
         this.repository = repository;
         this.elasticsearchService = elasticsearchService;
+        this.eventProducer = eventProducer;
     }
 
     @Override
@@ -41,12 +44,25 @@ public class TodoServiceImpl implements TodoService {
         doc.setDescription(saved.getDescription());
         doc.setCompleted(saved.isCompleted());
         elasticsearchService.save(doc);
+
+        // publish created/updated event
+        try {
+            eventProducer.publishTodoCreated(saved);
+        } catch (Exception e) {
+            // don't break primary flow if event publishing fails
+        }
+
         return saved;
     }
 
     @Override
     public void deleteById(Long id) {
         repository.deleteById(id);
+        try {
+            eventProducer.publishTodoDeleted(id);
+        } catch (Exception e) {
+            // ignore
+        }
     }
 
     public List<TodoDocument> searchTodos(String query) {
