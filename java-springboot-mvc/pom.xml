@@ -95,6 +95,12 @@
             <artifactId>spring-kafka</artifactId>
         </dependency>
 
+        <!-- Kafka Streams support -->
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka-streams</artifactId>
+        </dependency>
+
         <!-- Useful for testing Kafka listeners in unit tests -->
         <dependency>
             <groupId>org.springframework.kafka</groupId>

@@ -13,6 +13,7 @@ public class TodoEventProducer {
     private static final Logger log = LoggerFactory.getLogger(TodoEventProducer.class);
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final OutboxService outboxService;
 
     public void publishTodoCreated(Todo todo) {
         TodoEvent event = TodoEvent.builder()
@@ -23,8 +24,9 @@ public class TodoEventProducer {
                 .collectionId(todo.getCollection() != null ? todo.getCollection().getId() : null)
                 .build();
 
-        log.debug("Publishing todo.created event for id={}", todo.getId());
-        kafkaTemplate.send(KafkaTopics.TODO_EVENTS, todo.getId() != null ? todo.getId().toString() : null, event);
+        log.debug("Enqueuing todo.created event for id={}", todo.getId());
+        // persist to outbox so a background sender can reliably deliver
+        outboxService.enqueueEvent(KafkaTopics.TODO_EVENTS, "TodoCreated", todo.getId() != null ? todo.getId().toString() : null, event);
     }
 
     public void publishTodoDeleted(Long id) {
@@ -32,8 +34,12 @@ public class TodoEventProducer {
                 .id(id)
                 .build();
 
-        log.debug("Publishing todo.deleted event for id={}", id);
-        kafkaTemplate.send(KafkaTopics.TODO_EVENTS, id != null ? id.toString() : null, event);
+        log.debug("Enqueuing todo.deleted event for id={}", id);
+        outboxService.enqueueEvent(KafkaTopics.TODO_EVENTS, "TodoDeleted", id != null ? id.toString() : null, event);
+    }
+
+    // internal method kept for convenience (direct send). Prefer outbox in production.
+    public void sendDirect(String topic, String key, Object payload) {
+        kafkaTemplate.send(topic, key, payload);
     }
 }
-
